@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>教师管理</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/adminbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/adminbar::sidebar(activeUri='teaMsg')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <!-- Button trigger modal -->
+            <button type="button" id="add_modal_btn" class="btn btn-primary" data-toggle="modal" data-target="#addModel">
+                添加教师
+            </button>
+
+            <!--添加modal -->
+            <div class="modal fade" id="addModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addModelTitle">修改信息</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/addUser/tea" method="post">
+                                <input type="hidden" name="id">
+                                <div class="form-group">
+                                    <label >编号号</label>
+                                    <input type="text" name="userno" class="form-control" placeholder="学号">
+                                    <!--<input type="hidden" name="userNo" >-->
+                                </div>
+                                <div class="form-group">
+                                    <label >姓名</label>
+                                    <input type="text" class="form-control" name="username" placeholder="姓名">
+                                </div>
+                                <div class="form-group">
+                                    <label >教研室</label>
+                                    <input type="text" class="form-control" name="teacherroomno" placeholder="教研室">
+                                </div>
+                                <div class="form-group">
+                                    <label >密码</label>
+                                    <input type="text" class="form-control" name="password" placeholder="密码">
+                                </div>
+                                <div class="form-group">
+                                    <label >性别</label>
+                                    <!--<input type="text" class="form-control" name="sex" placeholder="性别" th:placeholder="${stus.sex}" >-->
+                                    <br>
+                                    <div >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="male" value="1" > 男
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="female" value="0" > 女
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">添加</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 更新Modal -->
+            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">修改信息</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/userUpd/tea" method="post" id="change_form">
+                                <input type="hidden" name="id">
+                                <div class="form-group">
+                                    <label >编号</label>
+                                    <input type="text" class="form-control" placeholder="编号" disabled="disabled">
+                                    <!--<input type="hidden" name="userNo" >-->
+                                </div>
+                                <div class="form-group">
+                                    <label >姓名</label>
+                                    <input type="text" class="form-control" name="username" placeholder="姓名">
+                                </div>
+                                <div class="form-group">
+                                    <label >教研室</label>
+                                    <input type="text" class="form-control" name="teacherroomno" placeholder="密码">
+                                </div>
+                                <div class="form-group">
+                                    <label >密码</label>
+                                    <input type="text" class="form-control" name="password" placeholder="密码">
+                                </div>
+                                <div class="form-group">
+                                    <label >性别</label>
+                                    <!--<input type="text" class="form-control" name="sex" placeholder="性别" th:placeholder="${stus.sex}" >-->
+                                    <br>
+                                    <div >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="change_male" value="1" > 男
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="change_female" value="0" > 女
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">修改</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>编号</th>
+                        <th>教研室</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-8" id="nav_data"></div>
+                <div class="col-4">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination" id="nav_li">
+                            <!--<li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">4</a></li>
+                            <li class="page-item"><a class="page-link" href="#">5</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>-->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+<script>
+    var nowPage;
+    var out_result;
+    var class_list;
+    $(function () {
+        to_pn(1)
+    })
+
+
+    $("#add_modal_btn").click(function () {
+        $.each(class_list,function (index,item) {
+            var opt = $("<option></option>").append(item.classname).val(item.id)
+            if(index == 1){
+                opt.attr("selected","selected");
+            }
+            opt.appendTo($("#add_class"))
+        })
+    })
+
+    /**
+     * 删除按钮事件
+     * @param pn
+     */
+    $(document).on("click",".del-btn",function () {
+        if(confirm("是否删除")){
+            var id = $(this).attr("index")
+            $.ajax({
+                url:'/delStu?id='+id,
+                type:"Get",
+                success:function (result) {
+                    alert("删除成功")
+                    to_pn(nowPage)
+                }
+            })
+        }
+    })
+
+    /**
+     * 更改按钮事件
+     */
+    $(document).on("click",".change_btn",function () {
+        $("#change_form input:eq(0)").val($(this).attr("index"))
+        $('#exampleModalLong').modal('toggle')
+        var index = $(this).attr("index2")
+        $("#change_form .form-group:eq(0) input").val(out_result[index].userno)
+        $("#change_form .form-group:eq(1) input").val(out_result[index].username)
+        $("#change_form .form-group:eq(2) input").val(out_result[index].teacherroomno)
+        $("#change_form .form-group:eq(3) input").val(out_result[index].password)
+        if(out_result[index].sex == 1){
+            $("#change_male").prop("checked",true);
+        }else{
+            $("#change_female").prop("checked",true);
+        }
+    })
+
+
+
+
+
+    function to_pn(pn){
+        $.ajax({
+            url:"/getTea",
+            data:"pn="+pn,
+            type:"get",
+            success:function (result) {
+                out_result = result.extend.pageInfo.list
+                nowPage=result.extend.pageInfo.pageNum
+                build_table(result)
+                buile_nav(result)
+                build_page_nav(result)
+            }
+        })
+    }
+
+
+    function build_table(result) {
+        $("tbody").empty();
+        var datas= result.extend.pageInfo.list;
+        $.each(datas,function (index,item) {
+            var i = $("<td></td>").append(index+1);
+            var sno = $("<td></td>").append(item.userno);
+            var classNo = $("<td></td>").append(item.teacherroomno);
+            var name = $("<td></td>").append(item.username);
+            if(item.sex == 0){
+                var sex = $("<td></td>").append("女");
+            }else{
+                var sex = $("<td></td>").append("男");
+            }
+            var del_btn=$("<button></button>").addClass("del-btn btn btn-danger btn-sm").text("删除").attr("index",item.id);
+            var change_btn=$("<button></button>").addClass("change_btn btn btn-warning btn-sm").text("修改").attr("index",item.id).attr("index2",index);
+            var btn_td=$("<td></td>").append(del_btn).append(change_btn);
+            $("<tr></tr>").append(i)
+                .append(sno)
+                .append(classNo)
+                .append(name)
+                .append(sex)
+                .append(btn_td).appendTo($("tbody"))
+        })
+    }
+    function buile_nav(result) {
+        $("#nav_data").empty();
+        $("#nav_data").append("当前"+result.extend.pageInfo.pageNum+"页,共"+result.extend.pageInfo.pages+"页")
+    }
+    function build_page_nav(result) {
+        var ul = $("#nav_li");
+        ul.empty();
+        var firstPage = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").attr("src","#").text("首页"));
+        firstPage.click(function () {
+            to_pn(1);
+        })
+        var pre = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").append("&laquo;").attr("src","#"));
+        pre.click(function () {
+            to_pn(result.extend.pageInfo.pageNum-1)
+        })
+        if(result.extend.pageInfo.hasPreviousPage == false){
+            firstPage.addClass("disabled")
+            pre.addClass("disabled")
+        }
+        var next = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").append("&raquo;").attr("src","#"));
+        next.click(function () {
+            to_pn(result.extend.pageInfo.pageNum+1)
+        })
+        var lastPage = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").attr("src","#").text("末页"));
+        lastPage.click(function () {
+            to_pn(result.extend.pageInfo.pages)
+        })
+        if(result.extend.pageInfo.hasNextPage == false){
+            next.addClass("disabled")
+            lastPage.addClass("disabled")
+        }
+        ul.append(firstPage).append(pre);
+        $.each(result.extend.pageInfo.navigatepageNums,function (index,item) {
+            var numli = $("<li></li>").addClass("page-item")
+                .append($("<a></a>").addClass("page-link").attr("src","#").append(item));
+            if(result.extend.pageInfo.pageNum == item){
+                numli.addClass("active")
+            }
+            numli.click(function () {
+                to_pn(item)
+            })
+            ul.append(numli)
+        })
+        ul.append(next).append(lastPage)
+    }
+</script>
+</body>
+
+</html>

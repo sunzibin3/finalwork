@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sun.finalwork.mapper.UserInfoMapper">
+
+    <select id="getTeaToMapByLike" resultType="Map">
+        select teaching.batchId,userNO,userName,teaching.batchId,courseName,className from ((userinfo left join teaching on
+        userinfo.userNo=teaching.teacherId) LEFT JOIN course on teaching.courseId=course.id)LEFT JOIN classinfo on teaching.classId=classinfo.Id
+        where position = "tea" and userName LIKE #{msg}
+    </select>
+
+    <select id="getTeaToMap" resultType="Map">
+        select teaching.batchId,userNO,userName,teaching.batchId,courseName,className from ((userinfo left join teaching on
+        userinfo.userNo=teaching.teacherId) LEFT JOIN course on teaching.courseId=course.id)LEFT JOIN classinfo on teaching.classId=classinfo.Id
+        where position = "tea"
+    </select>
+
+
+
+    <sql id="key">
+        <trim suffixOverrides=",">
+            <if test="userno!=null">
+                userno,
+            </if>
+            <if test="username!=null">
+                username,
+            </if>
+            <if test="classno!=null">
+                classno,
+            </if>
+            <if test="password!=null">
+                password,
+            </if>
+            <if test="sex!=null">
+                sex,
+            </if>
+            <if test="starttime!=null">
+                starttime,
+            </if>
+            <if test="usertype!=null">
+                usertype,
+            </if>
+            <if test="batchid!=null">
+                batchid,
+            </if>
+            <if test="position!=null">
+                position,
+            </if>
+            <if test="teacherroomno != null">
+                teacherRoomNo,
+            </if>
+        </trim>
+    </sql>
+    <sql id="value">
+        <trim suffixOverrides=",">
+            <if test="userno!=null">
+                #{userno},
+            </if>
+            <if test="username!=null">
+                #{username},
+            </if>
+            <if test="classno!=null">
+                #{classno},
+            </if>
+            <if test="password!=null">
+                #{password},
+            </if>
+            <if test="sex!=null">
+                #{sex},
+            </if>
+            <if test="starttime!=null">
+                #{starttime},
+            </if>
+            <if test="usertype!=null">
+                #{usertype},
+            </if>
+            <if test="batchid!=null">
+                #{batchid},
+            </if>
+            <if test="position!=null">
+                #{position},
+            </if>
+            <if test="teacherroomno != null">
+                #{teacherroomno},
+            </if>
+        </trim>
+    </sql>
+
+
+    <update id="updUserInfoById">
+        update userinfo
+        <set>
+            <if test="classno != null">
+              classNo = #{classno},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="username != null">
+                userName = #{username},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="teacherroomno != null">
+                teacherRoomNo=#{teacherroomno},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="addUser">
+      insert into userinfo(<include refid="key"/>) values(<include refid="value"/>)
+    </insert>
+</mapper>

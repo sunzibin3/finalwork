@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>选课</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/bar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/bar::sidebar(activeUri='stuChooseCur')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <input type="hidden" id="url" th:value="'/getStuCourse/'+${session.username}+'/'+${session.userClassNo}">
+            <div class="row">
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-lg" id="dataSubmit">
+                        提交
+                    </button>
+                </div>
+                <div class="col-md-10">
+                    <select class="form-control" id="batchSel">
+                        <option th:value="11" >第1学期上</option>
+                        <option th:value="12" >第1学期下</option>
+                        <option th:value="21" >第2学期上</option>
+                        <option th:value="22" >第2学期下</option>
+                        <option th:value="31" >第3学期上</option>
+                        <option th:value="32" >第3学期下</option>
+                        <option th:value="41" >第4学期上</option>
+                        <option th:value="42" >第4学期下</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-sm" id="courseTable">
+                    <input type="hidden" th:if="${courses != 0}" th:value="${courses.size()}" id="coureseSize">
+                    <input type="hidden" th:value="${session.username}" id="usreNO">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" class="check_all"></th>
+                        <th>课程编号</th>
+                        <th>课程名</th>
+                        <th>学期编号 <a href="/batchTip">(编号意义)</a></th>
+                    </tr>
+                    </thead>
+                    <tbody th:switch="${courses}==0">
+                        <div th:case="false">
+                            <tr th:each="course:${courses}">
+                                <td><input type="checkbox" class="check_item"></td>
+                                <td th:text="${course.id}"></td>
+                                <td th:text="${course.courseName}"></td>
+                                <td th:text="${course.batchId}"></td>
+                            </tr>
+                        </div>
+                        <div th:case="true">
+                            <script>
+                                alert("本学期没有剩余可选课程")
+                            </script>
+                        </div>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    //点击全选
+    //利用prop获取值
+    $(".check_all").click(function () {
+        //alert($(this).prop("checked"))
+        $(".check_item").prop("checked",$(this).prop("checked"))
+    });
+    //当列表项全部选中之后，全选按钮点亮
+    $(document).on("click",".check_item",function () {
+        var flag = $(".check_item:checked").length == $("#coureseSize").val();
+        //alert()
+        $(".check_all").prop("checked",flag)
+    });
+
+    //添加按钮点击事件
+    $("#dataSubmit").click(function () {
+        var courseId =""
+        $.each($(".check_item:checked"),function () {
+            courseId += $(this).parents("tr").find("td:eq(1)").text()+"-";
+        });
+        courseId=courseId.substring(0,courseId.length-1)
+        //alert(courseId)
+        if(confirm("是否添加")){
+            //ajax
+            $.ajax({
+                url:"/addCourse/"+courseId,
+                type:"Post",
+                success:function (result) {
+                    alert(result.msg)
+                    window.location.reload()
+                }
+            })
+        }
+    })
+</script>
+
+</body>
+
+</html>

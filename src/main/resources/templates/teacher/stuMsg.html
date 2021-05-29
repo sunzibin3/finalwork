@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>所选课程</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        .test{
+
+            width:1000px;
+            height: 150px;
+        }
+        .test2{
+
+            width:500px;
+            height: 100%;
+            position: relative;
+            float: left;
+        }
+        .test3{
+            color: red;
+            width:500px;
+            height: 100%;
+            position: relative;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/bar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/teacherbar::sidebar(activeUri='stuMsg')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <!-- Button trigger modal -->
+            <button type="button" id="model_btn" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" hidden="hidden"></button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">留言信息</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="time" class="col-sm-2 control-label" style="color: #007bff">时间</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="time" disabled="disabled">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message" class="col-sm-2 control-label" style="color: #007bff">信息</label>
+                                    <div class="col-sm-10">
+                                        <span id="message"></span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&-->
+            <div class="table-responsive">
+                <table class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th>留言时间</th>
+                        <th>查看状态</th>
+                        <th>学号</th>
+                        <th>学生姓名</th>
+                    </tr>
+                    </thead>
+                    <tbody id="msgShow">
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    var datas=0;
+    $.ajax({
+        url:"/getStuMsgNum",
+        type:"get",
+        success:function (data) {
+            $("#msgCount").text("("+data+"条新信息)").css("color","red")
+        }
+    })
+
+    function create_chart(result){
+        datas = result.extend.result
+        $.each(datas,function (index,item) {
+            var timeele =$("<td></td>").append(item.time)
+            if(item.flag == 1){
+                var flagEle =$("<td></td>").append("未查看").css("color","red")
+            }else{
+                var flagEle =$("<td></td>").append("已查看")
+            }
+            var stuNum=$("<td></td>").append(item.stuDate.userNo)
+            var stuName=$("<td></td>").append(item.stuDate.userName)
+            var check_btn=$("<button class='check_btn'>查看</button>").attr("index",index)
+            //item
+            //stuDate.userName
+            $("<tr></tr>").append(timeele)
+                .append(flagEle)
+                .append(stuNum)
+                .append(stuName)
+                .append(check_btn).appendTo($("#msgShow"))
+
+        })
+    }
+
+
+    $.ajax({
+        url:"/getStuMsg",
+        type:"get",
+        success:function (result) {
+            if(result.code == 100){
+                console.log(result)
+                create_chart(result)
+            }
+        }
+    })
+
+
+    $(document).on("click",".check_btn",function () {
+        console.log($(this).attr("index"))
+        console.log(datas[$(this).attr("index")])
+        var data = datas[$(this).attr("index")]
+        $.ajax({
+            url:"/updStuMsgFlag",
+            type:"Post",
+            data:{id:data.id,flag:data.flag},
+            success:function () {
+            }
+        })
+        $("#time").prop("value",data.time)
+        $("#message").html(data.message)
+        $('#model_btn').click()
+    })
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>选课</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/adminbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/adminbar::sidebar(activeUri='quotaMan')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <div class="table-responsive">
+                <button type="button" data-toggle="modal" data-target="#add_Modal">
+                    添加
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="test('delQuota')">批量删除</button>
+                <button onclick="test('confirmQuota')">批量确认</button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="add_Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="add_Modal_lLabel">更改评价项</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="addQuota">
+                                    <div class="form-group">
+                                        <label for="qaname">评价项名称</label>
+                                        <input type="text" class="form-control" name="quotaName" id="qaname" placeholder="请输入评价项名称">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="qaweight">权职</label>
+                                        <input type="text" class="form-control" name="weight" id="qaweight" placeholder="请输入权值">
+                                    </div>
+                                    <div class="checkbox">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="isUsed"  value="0" checked>暂时不使用
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="isUsed"  value="1">使用
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="qa_sub" class="btn btn-default">提交</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">更改评价项</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="changeQuota" method="post">
+                                    <input type="hidden" id="real_id" name="id">
+                                    <div class="form-group">
+                                        <label for="qno">评价项编号</label>
+                                        <input type="text" class="form-control" id="qno" placeholder="评价项编号" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="qname">名称</label>
+                                        <input type="text" class="form-control" name="quotaName" id="qname" placeholder="名称" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="qweight">权重</label>
+                                        <input type="text" class="form-control" name="weight" id="qweight" placeholder="权重">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>是否可用</label><br>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="isUsed" id="radio_used" value="1"> 是
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="isUsed" id="radio_notUsed" value="0"> 否
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <table class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" class="check_all"></th>
+                        <th>评价项编号</th>
+                        <th>名称</th>
+                        <th>权重</th>
+                        <th>是否使用</th>
+                        <th>管理</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+<script>
+    var data;
+    function test(){
+        console.log(data[3])
+    }
+    $(function () {
+        $.ajax({
+            url:"getQuota?user=stu",
+            type:"Get",
+            async:true,
+            success:function (result) {
+                data = result.extend.quotas;
+                create_table(result)
+            }
+        })
+    })
+
+    $("#qaname").blur(function () {
+        if($(this).val()==''){
+            alert("该选项不能为空")
+            $("#qa_sub").prop("disabled",true)
+        }else{
+            $("#qa_sub").removeAttr("disabled")
+        }
+    })
+    $("#qaweight").blur(function () {
+        if($(this).val()==''){
+            alert("该选项不能为空")
+            $("#qa_sub").prop("disabled",true)
+        }else{
+            $("#qa_sub").removeAttr("disabled")
+        }
+    })
+
+    function create_table(result) {
+        var data = result.extend.quotas;
+        $.each(data,function (index,item) {
+            var check_box = $("<td></td>").html("<input type='checkbox' class='check_item'>");
+            var qno = $("<td></td>").append(item.id)
+            var qname = $("<td></td>").append(item.quotaName)
+            var weight = $("<td></td>").append(item.weight)
+            if(item.isUsed == 1){
+                var is_used = $("<td></td>").append("已使用")
+            }else {
+                var is_used = $("<td></td>").append("未使用")
+            }
+            var btn_man = $("<button></button>").addClass("change_btn").text("更改")
+                .attr("key",item.id).attr("index",index);
+            var btn_del = $("<button></button>").addClass("del_btn btn btn-danger btn-sm").text("删除")
+                .attr("key",item.id)
+            var btn = $("<td></td>").append(btn_man).append(btn_del)
+            $("<tr></tr>").append(check_box)
+                .append(qno)
+                .append(qname)
+                .append(weight)
+                .append(is_used)
+                .append(btn)
+                .appendTo($("tbody"))
+        })
+    }
+
+    $(document).on("click",".change_btn",function () {
+        var index = $(this).attr("index")
+        $("#real_id").val(data[index].id)
+        $("#qno").val(data[index].id)
+        $("#qname").val(data[index].quotaName)
+        $("#qweight").val(data[index].weight)
+        if(data[index].isUsed ==1){
+            $("#radio_used").attr("checked",true)
+        }else{
+            $("#radio_notUsed").attr("checked",true)
+        }
+        $('#exampleModal').modal('toggle')
+    })
+
+    $(document).on("click",".del_btn",function () {
+        var index = $(this).attr("key")
+        if(confirm("是否删除")){
+            $.ajax({
+                url:"delQta/"+index,
+                type:"post",
+                success:function (result) {
+                    if(result.code==100){
+                        alert("删除成功")
+                        window.location.reload()
+                    }
+                }
+            })
+        }
+    })
+    //点击全选
+    //利用prop获取值
+    $(".check_all").click(function () {
+        //alert($(this).prop("checked"))
+        $(".check_item").prop("checked",$(this).prop("checked"))
+    });
+    //当列表项全部选中之后，全选按钮点亮
+    $(document).on("click",".check_item",function () {
+        var flag = $(".check_item:checked").length == $("#coureseSize").val();
+        //alert()
+        $(".check_all").prop("checked",flag)
+    });
+
+    //批量删除
+    function test(flag){
+        var courseId =""
+        $.each($(".check_item:checked"),function () {
+            courseId += $(this).parents("tr").find("td:eq(1)").text()+"-";
+        });
+        courseId=courseId.substring(0,courseId.length-1)
+        if(confirm("是否进行下一步操作")){
+            //ajax
+            $.ajax({
+                url:flag+"/"+courseId,
+                type:"Post",
+                success:function (result) {
+                    alert(result.msg)
+                    window.location.reload()
+                }
+            })
+        }
+
+    }
+  /*  $("#dataSubmit").click(function () {
+        var courseId =""
+        $.each($(".check_item:checked"),function () {
+            courseId += $(this).parents("tr").find("td:eq(1)").text()+"-";
+        });
+        courseId=courseId.substring(0,courseId.length-1)
+        //alert(courseId)
+        if(confirm("是否添加")){
+            //ajax
+            $.ajax({
+                url:"/addCourse/"+courseId,
+                type:"Post",
+                success:function (result) {
+                    alert(result.msg)
+                    window.location.reload()
+                }
+            })
+        }
+    })*/
+</script>
+
+</body>
+
+</html>

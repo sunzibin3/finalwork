@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sun.finalwork.mapper.TeacherMapper">
+    <resultMap id="stuMsgMap" type="com.sun.finalwork.bean.teacher.MsgDates">
+        <result property="id" column="id"/>
+        <result property="message" column="message"/>
+        <result property="time" column="starttime"/>
+        <result property="flag" column="flag"/>
+        <association property="stuDate" javaType="com.sun.finalwork.bean.Student">
+            <result property="userNo" column="userNo"></result>
+            <result property="userName" column="userName"></result>
+            <result property="sex" column="sex"></result>
+            <result property="position" column="position"></result>
+            <result property="classNo" column="classNo"></result>
+            <result property="className" column="className"></result>
+        </association>
+    </resultMap>
+
+    <select id="selTeacherAvg" resultType="com.sun.finalwork.bean.StuChartMsg">
+        SELECT userinfo.userName name,avg(qutaValue) value from userinfo,stuevaluate
+        where userinfo.userNo = stuevaluate.tno and teacherRoomNo = #{tno}
+        GROUP BY userinfo.userName
+    </select>
+
+    <select id="selStuMsg" resultMap="stuMsgMap">
+        select * from stumsgtotea s,userinfo u
+        where s.sno=u.userNo and  tno = #{tno}
+    </select>
+
+    <select id="selTeachers" resultType="com.sun.finalwork.bean.teacher.TeaEva">
+        select u.userNo,u.teacherRoomNo,u.userName,t.img,
+        if((select count(*) from teaevaluate where tno=#{userNo} and evatno=userNo)>0,0,1) flag
+        from userinfo u,teacherimage t
+        where u.userNo=t.tno and u.teacherRoomNo=#{teacherRoomNo} and userNo != #{userNo}
+    </select>
+
+    <insert id="saveTeaEva">
+        insert into teaevaluate
+        values
+        <foreach collection="datas" item="data" separator="," index="index">
+            (default ,#{data.tno},#{data.eavtno},#{data.id},#{data.value})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>学生信息</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        .testdiv{
+            width: 50%;
+            height: 250px;
+            background-color: #1b1e21;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/bar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/bar::sidebar(activeUri='EvaluateTeaList')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+
+            <div class="jumbotron">
+                <h1>欢迎来到留言页面!</h1>
+                <button id="sendDatas" class="btn btn-primary btn-lg">提交</button>
+            </div>
+            <textarea id="editor_id" name="content" style="width:700px;height:300px">
+
+            </textarea>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+
+<script charset="utf-8" src="kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
+<script>
+    $("#showImage").attr("src",'/img/'+getDateFromUrl('img'))
+    var editor;
+    KindEditor.ready(function(K) {
+        editor = K.create('#editor_id');
+    });
+    function getVal(){
+        //取得HTML内容?
+        //同步数据后可以直接取得textarea的value?
+        editor.sync();
+        return $('#editor_id').val();
+    }
+
+    function getDateFromUrl(name) {
+        var str =window.location.search.substring(1)
+        str = str.split("&")
+        for(var i=0;i<str.length;i++){
+            var temp = str[i].split("=")
+            if(temp[0]==name){return temp[1]}
+        }
+        return false;
+    }
+
+    $("#sendDatas").click(function () {
+        var sno = getDateFromUrl('sno');
+        var tno = getDateFromUrl('tno');
+        var text = getVal();
+        $.ajax({
+            url:'saveStuMSg',
+            type:'Post',
+            data:{'sno':sno,
+                'tno':tno,
+                'msg':text},
+            success:function (result) {
+                if(result.code==100){
+                    alert("您已成功完成评论")
+                }
+            }
+        })
+    })
+</script>
+
+</body>
+
+</html>

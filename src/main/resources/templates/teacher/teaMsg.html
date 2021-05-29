@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>学生信息</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/bar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/teacherbar::sidebar(activeUri='teaMsg')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                修改
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">修改个人信息</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/stuUpd" method="post" enctype="multipart/form-data" id="form1">
+                                <div class="form-group">
+                                    <label >头像</label>
+                                    <input type="file" name="fileName"/>
+                                </div>
+                                <div class="form-group">
+                                    <label >编号</label>
+                                    <input type="text" class="form-control" placeholder="学号" th:placeholder="${session.teaDate.userNo}" disabled="disabled">
+                                    <input type="hidden" name="userNo" th:value="${session.teaDate.userNo}">
+                                </div>
+                                <div class="form-group">
+                                    <label >密码</label>
+                                    <input type="text" class="form-control" name="password" placeholder="密码" th:value="${session.teaDate.password}" th:placeholder="${session.teaDate.password}" >
+                                </div>
+                                <div class="form-group">
+                                    <label >姓名</label>
+                                    <input type="text" class="form-control" name="userName" placeholder="姓名" th:value="${session.teaDate.userName}" th:placeholder="${session.teaDate.userName}" >
+                                </div>
+                                <div class="form-group">
+                                    <label >性别</label>
+                                    <!--<input type="text" class="form-control" name="sex" placeholder="性别" th:placeholder="${stus.sex}" >-->
+                                    <br>
+                                    <div >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="male" value="1" th:checked="${session.teaDate.sex}==1"> 男
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="sex" id="female" value="0" th:checked="${session.teaDate.sex}==0"> 女
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-success" id="from_sub">修改</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-responsive">
+                <form>
+                    <div class="form-group">
+                        <label >图像</label><br/>
+                        <img id="teaImg" src="" width="200px" height="200px">
+                    </div>
+                    <div class="form-group">
+                        <label >教职工编号</label>
+                        <input type="text" class="form-control" placeholder="姓名" th:placeholder="${session.teaDate.userNo}" disabled="disabled">
+                    </div>
+                    <div class="form-group">
+                        <label >教研室</label>
+                        <input type="text" class="form-control" placeholder="教研室" th:placeholder="${session.teaDate.teacherRoomNo}" disabled="disabled">
+                    </div>
+                    <div class="form-group">
+                        <label >姓名</label>
+                        <input type="text" class="form-control" placeholder="姓名" th:placeholder="${session.teaDate.userName}" disabled="disabled">
+                    </div>
+                    <div class="form-group">
+                        <label >密码</label>
+                        <input type="text" class="form-control" placeholder="密码" th:placeholder="${session.teaDate.password}" disabled="disabled">
+                    </div>
+                    <div class="form-group">
+                        <label >性别</label>
+                        <input type="text" class="form-control" placeholder="性别" th:placeholder="${session.teaDate.sex}==1?'男':'女'" disabled="disabled">
+                    </div>
+                    <div class="form-group">
+                        <label >类型</label>
+                        <input type="text" class="form-control" placeholder="类型" th:placeholder="${session.teaDate.position}" disabled="disabled">
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    var tno = [[${session.teaDate.userNo}]]
+    var imgFlag;
+    
+    $("#from_sub").click(function () {
+        var form=$("#form1");
+        var formData = new FormData(form[0]);
+        if(formData.get("fileName").size>10000000){
+            alert('文件大小大于10M请重新上传')
+            return false;
+        }else{
+            $.ajax({
+                url:"/changeTeaDate",
+                type:"POST",
+                data:formData,
+                dataType:"json",
+                cache:false,
+                async:false,
+                contentType:false,
+                processData:false,
+                success:function (result) {
+                    if(result.code==200){
+                        alert(result.extend.note);
+                    }else{
+                        alert("保存成功");
+                        window.location.reload()
+                    }
+                }
+            })
+        }
+        //console.log(formData2.get("fileName").size)
+
+    })
+    
+    
+    
+    $.ajax({
+        url:"/showTeaImg",
+        type:"Post",
+        data:{'tno':tno},
+        success:function (result) {
+            if(result.code == 100){
+                $("#teaImg").attr("src","/img/"+result.extend.path)
+                imgFlag=1;
+            }else{
+                $("#teaImg").attr("src","/img/unknow.jpg")
+                imgFlag=0;
+            }
+        }
+    })
+</script>
+
+</body>
+
+</html>

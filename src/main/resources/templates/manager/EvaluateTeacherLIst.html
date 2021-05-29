@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>所选课程</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<style>
+    /*包含以下四种的链接*/
+    a {
+        text-decoration: none;
+        color: white;
+    }
+    /*正常的未被访问过的链接*/
+    a:link {
+        text-decoration: none;
+        color: white;
+    }
+    /*已经访问过的链接*/
+    a:visited {
+        text-decoration: none;
+        color: white;
+    }
+    /*鼠标划过(停留)的链接*/
+    a:hover {
+        text-decoration: none;
+        color: white;
+    }
+    /* 正在点击的链接*/
+    a:active {
+        text-decoration: none;
+        color: white;
+    }
+</style>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/adminbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/adminbar::sidebar(activeUri='stuevaMan')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+            <button type="button" id="modal_button" style="display: none" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+                查看评价
+            </button>
+           <!--模态框-->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">修改个人信息</h4>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>评价项</th>
+                                    <th>评价</th>
+                                </tr>
+                                </thead>
+                                <tbody id="eva_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-responsive">
+                <span style="font-size:50px;">学号</span><span style="font-size:50px;" th:text="${sno}"></span>
+                <span style="font-size:50px;">姓名</span> <span style="font-size:50px;" th:text="${name}"></span>
+
+                <table class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th>教师编号</th>
+                        <th>教师名</th>
+                        <th>课程名</th>
+                        <th>照片</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="teacher:${teachers}">
+                            <td th:text="${teacher.teacherId}"></td>
+                            <td th:text="${teacher.tname}"></td>
+                            <td th:text="${teacher.courseName}"></td>
+                            <td><img th:src="'/img/'+${teacher.img}" width="100px" height="100px" alt="该教师未提交照片"></td>
+                            <td>
+                                <button type="button" th:if="${teacher.quotaflag==0}" class="check_Eva btn btn-primary btn-sm" th:attr="teacherid=${teacher.teacherId},sno=${sno}">查询评价信息</button>
+                                <button type="button" th:if="${teacher.quotaflag==0}" class="del_Eva btn btn-danger btn-sm" th:attr="teacherid=${teacher.teacherId},sno=${sno}">删除评价</button>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    function build_table(result){
+        $("#eva_tbody").empty();
+        var result = result.extend.quotas
+        $.each(result,function (index,item) {
+            var eavId =$("<td></td>").append(item.id)
+            var eavName=$("<td></td>").append(item.quotaName)
+            var eavValue=$("<td></td>").append(item.qutaValue)
+            $("<tr></tr>").append(eavId)
+                .append(eavName)
+                .append(eavValue).appendTo("#eva_tbody")
+        })
+    }
+
+
+    $(".sss").click(function () {
+        if($(this).find("span").text()=='(已评价)'){
+            alert("请不要重复评价")
+            $(this).attr("disabled",true)
+            return false;
+        }
+    })
+
+    $(".del_Eva").click(function () {
+        if(confirm("是否删除")){
+            alert("删除成功")
+        }
+    })
+
+    $(".check_Eva").click(function () {
+        var tid = $(this).attr('teacherid')
+        var sno = $(this).attr('sno')
+        $.ajax({
+            url:'/getStuEvaByTidSno',
+            type:'Post',
+            data:{"tid":tid,"sno":sno},
+            success:function (result) {
+                console.log(result)
+                $("#modal_button").click()
+                build_table(result)
+            }
+        })
+    })
+</script>
+
+</body>
+
+</html>

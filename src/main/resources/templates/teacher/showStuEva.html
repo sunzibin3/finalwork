@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>评价</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/teacherbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/teacherbar::sidebar(activeUri='getStuEva')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <button type="button" id="modal_button" style="display: none" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+                查看评价
+            </button>
+            <!--模态框-->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">修改个人信息</h4>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-striped table-sm" id="courseTable">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>评价项</th>
+                                    <th>评价</th>
+                                </tr>
+                                </thead>
+                                <tbody id="eva_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            <div class="table-responsive" th:switch="${flag}">
+                <table th:case="1" class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>班级</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="stu:${stuList}">
+                        <td th:text="${stu.sno}"></td>
+                        <td th:text="${stu.sname}"></td>
+                        <td th:text="${stu.className}"></td>
+                        <td><button th:attr="id=${stu.sno}" class="check_Eva btn btn-primary btn-sm">查看</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <span th:case="0">没有查询到信息</span>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    function build_table(result){
+        $("#eva_tbody").empty();
+        var result = result.extend.quotas
+        $.each(result,function (index,item) {
+            var eavId =$("<td></td>").append(item.id)
+            var eavName=$("<td></td>").append(item.quotaName)
+            var eavValue=$("<td></td>").append(item.qutaValue)
+            $("<tr></tr>").append(eavId)
+                .append(eavName)
+                .append(eavValue).appendTo("#eva_tbody")
+        })
+    }
+
+
+    $(".check_Eva").click(function () {
+        var sno = $(this).attr('id')
+        $.ajax({
+            url: '/getStuEvaBySno',
+            type: 'Post',
+            data: {"sno": sno},
+            success: function (result) {
+                console.log(result)
+                $("#modal_button").click()
+                build_table(result)
+            }
+        })
+    })
+</script>
+
+</body>
+
+</html>

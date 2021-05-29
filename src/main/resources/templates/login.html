@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>评价系统用户登录</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/signin.css" th:href="@{/asserts/css/signin.css}" rel="stylesheet">
+</head>
+
+<body class="text-center">
+<form class="form-signin" id="loginForm" action="user/login" th:action="@{/user/login}" method="post">
+    <img class="mb-4" th:src="@{/asserts/img/bootstrap-solid.svg}" src="asserts/img/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">Please sign in</h1>
+    <p style="color: red" th:text="${msg}" th:if="${not #strings.isEmpty(msg)}"></p>
+    <label class="sr-only" th:text="#{login.username}">Username</label>
+    <input type="text" class="form-control" id="username" name="userNo" placeholder="Username" th:placeholder="#{login.username}" required="" autofocus="">
+    <span class="userTip"></span>
+    <label class="sr-only" th:text="#{login.password}">Password</label>
+    <input type="password" name="password" id="password" class="form-control" placeholder="Password" th:placeholder="#{login.password} "required="">
+
+    <label class="sr-only" th:text="验证码">验证码</label>
+    <input type="text" name="verified" id="verified" autocomplete="off" class="form-control" placeholder="验证码" th:placeholder="验证码"required="">
+    <img class="vrifyImg" src="/getVerifyCode" onclick="change()">
+
+    <div class="col-md-10">
+        <label class="radio-inline">
+            <input type="radio" name="userType" id="stu" value="1" checked> 学生
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="userType" id="tea" value="1"> 教师
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="userType" id="manger" value="2"> 管理员
+        </label>
+    </div>
+
+
+    <!--<div class="checkbox mb-3">
+        <label>
+            <input type="checkbox" value="remember-me">[[#{login.rememberMe}]]
+        </label>
+    </div>-->
+    <button class="btn btn-lg btn-primary btn-block" id="report" type="button" th:text="#{login.btn}">Sign in</button>
+    <p class="mt-5 mb-3 text-muted">© 2017-2018</p>
+    <a class="btn btn-sm" th:href="@{/index.html(l='zh_CN')}">中文</a>
+    <a class="btn btn-sm" th:href="@{/index.html(l='en_US')}">English</a>
+</form>
+
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script>
+    function change() {
+        var src = "/getVerifyCode?"+new Date().getTime();
+        $(".vrifyImg").attr("src",src)
+    }
+
+    flag1 = false
+    flag2 = false
+    $("#username").blur(function () {
+        if($(this).val()==""){
+            flag1 = false
+        }else{
+            flag1 = true
+        }
+    })
+    $("#password").blur(function () {
+        if($(this).val()==""){
+            flag2 = false
+        }else{
+            flag2 = true
+        }
+    })
+    $("#report").click(function () {
+        if(flag1 && flag2){
+            $("#loginForm").submit();
+            return false;
+        }else{
+            alert("请输入用户名和密码")
+            return false;
+        }
+        // alert($("input[name='chose_opt']:checked").val())
+    })
+
+</script>
+
+</body>
+
+</html>

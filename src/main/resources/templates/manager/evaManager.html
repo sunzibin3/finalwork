@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>教师管理</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/adminbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/adminbar::sidebar(activeUri='evaMan')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <!--查询按钮-->
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="tea_name" placeholder="请输入要查询的教师姓名">
+                </div>
+                <button type="button" id="tea_search" class="btn btn-default">查询</button>
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">评价项目</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm" id="ss">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>项目</th>
+                                        <th>均分</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="model_body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-responsive">
+                <table class="table table-striped table-sm" id="courseTable">
+                    <thead>
+                    <tr>
+                        <th>学年</th>
+                        <th>教职工号</th>
+                        <th>姓名</th>
+                        <th>教授班级</th>
+                        <th>所教课程</th>
+                        <th>得分</th>
+                        <th>状况</th>
+                    </tr>
+                    </thead>
+                    <tbody id="main_body">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-8" id="nav_data"></div>
+                <div class="col-4">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination" id="nav_li">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+<script>
+    var nowPage;
+    var out_result;
+    var eva_list;
+    var class_list;
+    $(function () {
+        to_pn(1)
+    })
+
+
+    /**
+     * excel
+     */
+
+    $(document).on("click",".excel_btn",function () {
+        var flag = getQuotaLIst($(this).attr("index"))
+        if(flag == 0){
+            alert("当前教师没有评价")
+            return false;
+        }
+    })
+
+
+
+    function getQuotaLIst(tno){
+        var flag;
+        $.ajax({
+            url:"getEvaItemByTno?tno="+tno,
+            type:"get",
+            async:false,
+            success:function (result) {
+                if(result.code == 200){
+                    eva_list = null;
+                    flag = 0;
+                }else{
+                    eva_list = result.extend.eav_item
+                    flag= 1;
+                }
+            }
+        })
+        return flag;
+    }
+
+
+    $(document).on("click",".view_btn",function () {
+        var tno = $(this).attr("index")
+        var flag = getQuotaLIst(tno)
+        console.log(flag)
+        if(flag == 0){
+            alert("该教师暂时没有评价信息")
+        }else{
+            build_model_table(eva_list)
+            $('#staticBackdrop').modal('toggle')
+        }
+    })
+
+
+
+    $("#tea_search").click(function () {
+        var msg = $("#tea_name").val()
+        $.ajax({
+            url:"getUserByMsg?userType=tea&msg="+msg,
+            type:"get",
+            async:true,
+            success:function (result) {
+                if(result.code==200){
+                    alert("查询失败，没有该教师")
+                    return false;
+                }else{
+                    build_table(result,false)
+                    $("#nav_data").empty();
+                    $("#nav_li").empty();
+                }
+            }
+        })
+    })
+
+
+    /*$(document).on("click",".view_btn",function () {
+        var tno = $(this).attr("index")
+        $.ajax({
+            url:"getEvaItemByTno?tno="+tno,
+            type:"get",
+            success:function (result) {
+                if(result.code == 200){
+                    alert("该教师暂时没有评价信息")
+                }else{
+                    eva_list = result.extend.eav_item
+                    console.log(eva_list)
+                    build_model_table(result)
+                    $('#staticBackdrop').modal('toggle')
+                }
+            }
+        })
+    })*/
+
+    function build_model_table(result) {
+        $("#model_body").empty();
+        data = result;
+        //data = result.extend.eav_item;
+        $.each(data,function (index,item) {
+            var td1=$("<td></td>").append(index);
+            var td2=$("<td></td>").append(item.quotaName);
+            var td3=$("<td></td>").append(item.qutaValue);
+            $("<tr></tr>").append(td1)
+                .append(td2)
+                .append(td3).appendTo( $("#model_body"))
+        })
+    }
+    function to_pn(pn){
+        $.ajax({
+            url:"/getTeassss",
+            data:"pn="+pn,
+            type:"get",
+            success:function (result) {
+                out_result = result.extend.pageInfo.list
+                nowPage=result.extend.pageInfo.pageNum
+                build_table(result,true)
+                buile_nav(result)
+                build_page_nav(result)
+            }
+        })
+    }
+    function build_table(result,page) {
+        $("tbody").empty();
+        if(page == true){
+            var datas= result.extend.pageInfo.list;
+        }else{
+            var datas= result.extend.user;
+        }
+        //var datas= result.extend.pageInfo.list;
+        $.each(datas,function (index,item) {
+            var tem=$("<td></td>").append(1);
+            var tno =$("<td></td>").append(item.userNO);
+            var name =$("<td></td>").append(item.userName);
+            var clazz =$("<td></td>").append(item.className);
+            var course =$("<td></td>").append(item.courseName);
+            if(isNaN(item.value)){
+                var score =$("<td></td>").append("没有评价信息");
+            }else {
+                var score =$("<td></td>").append(item.value);
+            }
+            if(item.value<60){
+                var condition =$("<td></td>").append("不及格");
+            }else if(60<item.value<80){
+                var condition =$("<td></td>").append("良");
+            }else{
+                var condition =$("<td></td>").append("优秀");
+            }
+            if(isNaN(item.value)){
+                var condition =$("<td></td>").append("没有评价信息");
+            }
+            var btn=$("<button></button>").addClass("view_btn btn btn-danger btn-sm").text("查看").attr("index",item.userNO);
+            var a=$("<a></a>").addClass("excel_btn btn btn-info btn-sm")
+                .text("导出")
+                .attr("href","/ttest?tno="+item.userNO+"&tname="+item.userName+"&avg="+item.value)
+                .attr("index",item.userNO);
+            var btn_td = $("<td></td>").append(btn).append(a);
+            $("<tr></tr>").append(tem)
+                .append(tno)
+                .append(name)
+                .append(clazz)
+                .append(course)
+                .append(score)
+                .append(condition)
+                .append(btn_td).appendTo($("#main_body"))
+        })
+    }
+    function buile_nav(result) {
+        $("#nav_data").empty();
+        $("#nav_data").append("当前"+result.extend.pageInfo.pageNum+"页,共"+result.extend.pageInfo.pages+"页")
+    }
+    function build_page_nav(result) {
+        var ul = $("#nav_li");
+        ul.empty();
+        var firstPage = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").attr("src","#").text("首页"));
+        firstPage.click(function () {
+            to_pn(1);
+        })
+        var pre = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").append("&laquo;").attr("src","#"));
+        pre.click(function () {
+            to_pn(result.extend.pageInfo.pageNum-1)
+        })
+        if(result.extend.pageInfo.hasPreviousPage == false){
+            firstPage.addClass("disabled")
+            pre.addClass("disabled")
+        }
+        var next = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").append("&raquo;").attr("src","#"));
+        next.click(function () {
+            to_pn(result.extend.pageInfo.pageNum+1)
+        })
+        var lastPage = $("<li></li>").addClass("page-item")
+            .append($("<a></a>").addClass("page-link").attr("src","#").text("末页"));
+        lastPage.click(function () {
+            to_pn(result.extend.pageInfo.pages)
+        })
+        if(result.extend.pageInfo.hasNextPage == false){
+            next.addClass("disabled")
+            lastPage.addClass("disabled")
+        }
+        ul.append(firstPage).append(pre);
+        $.each(result.extend.pageInfo.navigatepageNums,function (index,item) {
+            var numli = $("<li></li>").addClass("page-item")
+                .append($("<a></a>").addClass("page-link").attr("src","#").append(item));
+            if(result.extend.pageInfo.pageNum == item){
+                numli.addClass("active")
+            }
+            numli.click(function () {
+                to_pn(item)
+            })
+            ul.append(numli)
+        })
+        ul.append(next).append(lastPage)
+    }
+</script>
+</body>
+
+</html>

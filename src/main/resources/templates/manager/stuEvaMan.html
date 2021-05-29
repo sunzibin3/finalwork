@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>课程管理</title>
+    <!-- Bootstrap core CSS -->
+    <link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <!-- Custom styles for this template -->
+    <link href="asserts/css/dashboard.css" th:href="@{/asserts/css/dashboard.css}" rel="stylesheet">
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+<!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="http://getbootstrap.com/docs/4.0/examples/dashboard/#">Sign out</a>
+        </li>
+    </ul>
+</nav>-->
+<div th:replace="~{common/adminbar::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{common/adminbar::sidebar(activeUri='stuevaMan')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-lg" id="dataSubmit">
+                        查询
+                    </button>
+                </div>
+
+                <!--添加modal -->
+                <div class="modal fade" id="addModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addModelTitle">修改信息</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">学号</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="stu_table_body">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-5">
+                    <select class="form-control" id="instituteSel" onchange="test()">
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <select class="form-control" id="deptSel">
+                    </select>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">班级</th>
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
+                <tbody id="table_body">
+
+                </tbody>
+            </table>
+
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+<script>
+    $(function () {
+        $.ajax({
+            url:"/getInstitude",
+            type:"Get",
+            success:function (result) {
+                console.log(result)
+                build_ins_opt(result);
+                build_dept_opt_ajax(1);
+            }
+        })
+    })
+    /**
+     * 构建表单
+     */
+    $("#dataSubmit").click(function () {
+        var id=$("#deptSel").select().val();
+        $.ajax({
+            url:"/getclassById?id="+id,
+            type:"get",
+            success:function (result) {
+                console.log(result)
+                build_table(result)
+            }
+        })
+    })
+
+    function build_table(result) {
+        var tbody = $("#table_body");
+        tbody.empty();
+        $.each(result.extend.classList,function (index,item) {
+            var indexTd = $("<td></td>").append(index+1);
+            var classTd = $("<td></td>").append(item.classname);
+            var btn = $("<button></button>").append("查询评价").attr("id",item.id).addClass("getStu btn btn-info")
+            $("<tr></tr>").append(indexTd).append(classTd).append(btn).appendTo(tbody)
+        })
+    }
+
+    $(document).on("click",".getStu",function () {
+        var key = $(this).attr("id")
+        $.ajax({
+            url:"getStuByClass?key="+key,
+            type:"get",
+            success:function (result) {
+                var data = result.extend.stus
+                var tbody = $("#stu_table_body")
+                tbody.empty()
+                $.each(data,function (index,item) {
+                    var sno = $("<td></td>").append(item.userNo);
+                    var sname = $("<td></td>").append(item.userName);
+                    var a = $("<a></a>").attr("href","getTeachersBysnoClassNo?sno="+item.userNo+"&classNo="+item.classNo+"&name="+item.userName).text("查询")
+                    $("<tr></tr>").append(sno)
+                        .append(sname)
+                        .append(a)
+                        .appendTo($("#stu_table_body"))
+                })
+                $('#addModel').modal('toggle')
+            }
+        })
+    })
+
+
+    function build_ins_opt(result) {
+        var data = result.extend.institutes;
+        $.each(data,function (index,item) {
+            var opt = $("<option></option>").append(item.instituteName).val(item.id);
+            $("#instituteSel").append(opt);
+        })
+    }
+    function build_dept_opt(result) {
+        var data = result.extend.dept;
+        var deptsel = $("#deptSel");
+        deptsel.empty();
+        $.each(data,function (index,items) {
+            var opt = $("<option></option>").append(items.deptName).val(items.id);
+            deptsel.append(opt)
+        })
+    }
+    function build_dept_opt_ajax(id) {
+        $.ajax({
+            url:"getDeptById?id="+id,
+            type:"get",
+            success:function (result) {
+                build_dept_opt(result)
+            }
+        })
+    }
+    function test() {
+        build_dept_opt_ajax($("#instituteSel").select().val())
+    }
+</script>
+</body>
+
+</html>

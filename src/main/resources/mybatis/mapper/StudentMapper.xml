@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sun.finalwork.mapper.StudentMapper">
+    <resultMap id="chartMsg" type="com.sun.finalwork.bean.StuChartMsg">
+        <result property="value" column="teaValues"></result>
+        <association property="name" column="tno" select="selTeacherName"></association>
+    </resultMap>
+
+    <select id="selTeacherName" resultType="java.lang.String">
+        select userName from userinfo where userNo=#{id}
+    </select>
+
+
+    <select id="selStuCourseByIdCid" resultType="stuCourse">
+        SELECT stucourse.id,stucourse.sno,stucourse.courseId,stucourse.sname,course.courseName,userinfo.userName
+        FROM stucourse,course,teaching,userinfo
+        WHERE stucourse.courseId=course.Id AND course.Id=teaching.courseId AND teaching.teacherId=userinfo.userNo
+        and stucourse.sno =#{sno} and teaching.classId=#{courseId} and stucourse.batch=#{batch}
+    </select>
+
+    <select id="selCourseById" resultType="ChooseCourse">
+        select course.Id,course.courseName,teaching.batchId from course,teaching
+        where course.Id=teaching.courseId and teaching.batchId=(SELECT batchId from userinfo where userNo=#{id})
+        and
+        course.Id not IN(SELECT courseId from stucourse where sno=#{id}) and classId=#{classId}
+    </select>
+
+    <insert id="insStuCourse">
+        insert into stucourse(id,sno,courseId,sname,batch,quotaflag)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (default,#{item.sno},#{item.courseId},#{item.sname},#{item.batch},#{item.quotaflag})
+        </foreach>
+    </insert>
+
+    <select id="selTeachersByIdClassId" resultType="com.sun.finalwork.bean.EvaluateTeachers">
+        select teaching.teacherId,teacherimage.tname,teacherimage.img,stucourse.quotaflag,course.courseName
+        from stucourse,teaching,teacherimage,course
+        where stucourse.courseId=teaching.courseId and teaching.teacherId=teacherimage.tno and stucourse.courseId=course.Id
+        and sno=#{sno} and classId=#{classId}
+    </select>
+
+    <insert id="changStuEvaFlag">
+        UPDATE stucourse SET quotaflag = '0'
+        where sno=#{sno} and courseId in (SELECT courseId from teaching where teacherId=#{tno})
+    </insert>
+
+    <insert id="insStuEva">
+        insert into stuevaluate
+        values
+        <foreach collection="datas" item="item" index="index" separator=",">
+            (default ,#{item.sno},#{item.tno},#{item.id},#{item.value})
+        </foreach>
+    </insert>
+
+    <select id="selTeacherAvg" resultMap="chartMsg">
+        select tno,avg(qutaValue) teaValues from stuevaluate
+        where tno in (select teaching.teacherId from stucourse,teaching where stucourse.courseId=teaching.courseId and stucourse.sno=#{id})
+        GROUP BY tno
+    </select>
+
+    <select id="selStuEvaByTid" resultType="com.sun.finalwork.bean.Quota">
+        SELECT quota.id,quota.quotaName,stueva.qutaValue  FROM quota LEFT JOIN stuevaluate stueva
+        on quota.Id = stueva.qutaId
+        where stueva.sno=#{sno} and stueva.tno=#{tid}
+    </select>
+</mapper>
